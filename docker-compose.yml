@@ -1,0 +1,59 @@
+services:
+    postgres:
+        image: postgres:18.1-bookworm
+        environment:
+            POSTGRES_USER: ${DATABASE_USER:-postgres}
+            POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+            POSTGRES_DB: ${DATABASE_DBNAME:-system_handbook_db}
+        volumes:
+            - postgres_data:/var/lib/postgresql
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-postgres}"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+        ports:
+            - "${DATABASE_PORT:-5435}:5432"
+        networks:
+            - system-handbook-network
+
+    system-handbook-migration:
+        image: migrate/migrate:v4.19.1
+        volumes:
+            - ${PROJECT_ROOT:-./}/migrations:/migrations
+        command: ["-path", "/migrations", "-database", "postgresql://${DATABASE_USER:-postgres}:${DATABASE_PASSWORD:-postgres}@postgres:5432/${DATABASE_DBNAME:-system_handbook_db}?sslmode=${DATABASE_SSLMODE:-disable}", "up"]
+        depends_on:
+            postgres:
+                condition: service_healthy
+        networks:
+            - system-handbook-network
+
+    system-handbook-service:
+        build: .
+        ports:
+            - "${GRPC_PORT:-50053}:${GRPC_PORT:-50053}"
+        environment:
+            APP_ENV: ${APP_ENV:-production}
+            DATABASE_HOST: postgres
+            DATABASE_PORT: 5432
+            DATABASE_USER: ${DATABASE_USER:-postgres}
+            DATABASE_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+            DATABASE_DBNAME: ${DATABASE_DBNAME:-system_handbook_db}
+            DATABASE_SSLMODE: ${DATABASE_SSLMODE:-disable}
+            GRPC_PORT: ${GRPC_PORT:-50053}
+            JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+        depends_on:
+            postgres:
+                condition: service_healthy
+            system-handbook-migration:
+                condition: service_completed_successfully
+        restart: unless-stopped
+        networks:
+            - system-handbook-network
+
+networks:
+    system-handbook-network:
+        driver: bridge
+
+volumes:
+    postgres_data:

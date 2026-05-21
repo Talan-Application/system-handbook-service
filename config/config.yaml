@@ -1,0 +1,17 @@
+app:
+    name: system-handbook-service
+    env: ${APP_ENV}
+
+database:
+    host: ${DATABASE_HOST}
+    port: ${DATABASE_PORT}
+    user: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+    dbname: ${DATABASE_DBNAME}
+    sslmode: ${DATABASE_SSLMODE}
+
+grpc:
+    port: ${GRPC_PORT}
+
+jwt:
+    secretKey: ${JWT_SECRET}
