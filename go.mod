@@ -3,6 +3,7 @@ module github.com/Talan-Application/system-handbook-service
 go 1.25.5
 
 require (
+	github.com/Talan-Application/translation-library v0.0.0-20260521194124-de275538f211
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/jackc/pgx/v5 v5.9.2
 	github.com/joho/godotenv v1.5.1
@@ -12,7 +13,6 @@ require (
 )
 
 require (
-	github.com/Talan-Application/translation-library v0.0.0-20260521194124-de275538f211 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect

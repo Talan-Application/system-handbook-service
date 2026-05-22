@@ -6,6 +6,10 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/Talan-Application/translation-library/cache"
+	translationRepo "github.com/Talan-Application/translation-library/repository/postgres"
+	translationService "github.com/Talan-Application/translation-library/service"
+	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 
 	"github.com/Talan-Application/system-handbook-service/internal/config"
@@ -30,8 +34,14 @@ func main() {
 	}
 	defer db.Close()
 
+	rdb := redis.NewClient(&redis.Options{Addr: "localhost:6379"})
+
+	translationRepository := translationRepo.NewTranslationRepository(db)
+	redisCache := cache.NewTranslationCache(rdb)
+	translationSvc := translationService.NewTranslationService(translationRepository, redisCache)
+
 	subjectRepo := postgres.NewSubjectRepository(db)
-	subjectSvc := service.NewSubjectService(subjectRepo, zapLog)
+	subjectSvc := service.NewSubjectService(translationSvc, subjectRepo, zapLog)
 
 	_ = subjectSvc
 
