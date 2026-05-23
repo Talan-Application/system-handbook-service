@@ -31,6 +31,13 @@ func authInterceptor(jwtSecret string) grpc.UnaryServerInterceptor {
 			return handler(ctx, req)
 		}
 
+		// Always extract locale from metadata; default to "ru".
+		locale := "ru"
+		if vals := md.Get("locale"); len(vals) > 0 && vals[0] != "" {
+			locale = vals[0]
+		}
+		ctx = context.WithValue(ctx, ctxkeys.LocaleKey, locale)
+
 		values := md.Get("authorization")
 		if len(values) == 0 {
 			return handler(ctx, req)

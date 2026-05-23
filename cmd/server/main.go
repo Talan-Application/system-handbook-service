@@ -40,12 +40,10 @@ func main() {
 	redisCache := cache.NewTranslationCache(rdb)
 	translationSvc := translationService.NewTranslationService(translationRepository, redisCache)
 
-	subjectRepo := postgres.NewSubjectRepository(db)
-	subjectSvc := service.NewSubjectService(translationSvc, subjectRepo, zapLog)
+	commonSubjectRepo := postgres.NewCommonSubjectRepository(db)
+	commonSubjectSvc := service.NewCommonSubjectService(translationSvc, commonSubjectRepo, zapLog)
 
-	_ = subjectSvc
-
-	grpcSrv := grpcserver.NewServer(cfg.GRPC, cfg.JWT.SecretKey, zapLog)
+	grpcSrv := grpcserver.NewServer(cfg.GRPC, cfg.JWT.SecretKey, zapLog, commonSubjectSvc)
 
 	go func() {
 		if err := grpcSrv.Run(); err != nil {

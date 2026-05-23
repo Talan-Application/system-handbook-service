@@ -8,7 +8,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
+	commonsubjectv1 "github.com/Talan-Application/proto-generation/common_subject/v1"
 	"github.com/Talan-Application/system-handbook-service/internal/config"
+	"github.com/Talan-Application/system-handbook-service/internal/handler"
+	"github.com/Talan-Application/system-handbook-service/internal/service"
 )
 
 type Server struct {
@@ -17,7 +20,7 @@ type Server struct {
 	log        *zap.Logger
 }
 
-func NewServer(cfg config.GRPCConfig, jwtSecret string, log *zap.Logger) *Server {
+func NewServer(cfg config.GRPCConfig, jwtSecret string, log *zap.Logger, svc service.ICommonSubjectService) *Server {
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			loggingInterceptor(log),
@@ -26,6 +29,7 @@ func NewServer(cfg config.GRPCConfig, jwtSecret string, log *zap.Logger) *Server
 		),
 	)
 
+	commonsubjectv1.RegisterCommonSubjectServiceServer(grpcServer, handler.NewCommonSubjectHandler(svc, log))
 	reflection.Register(grpcServer)
 
 	return &Server{

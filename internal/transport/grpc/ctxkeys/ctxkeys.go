@@ -4,4 +4,5 @@ type contextKey string
 
 const (
 	UserIDKey contextKey = "user_id"
+	LocaleKey contextKey = "locale"
 )

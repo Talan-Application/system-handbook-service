@@ -1,0 +1,126 @@
+package service
+
+import (
+	"context"
+
+	"go.uber.org/zap"
+
+	"github.com/Talan-Application/system-handbook-service/internal/domain"
+	"github.com/Talan-Application/system-handbook-service/internal/repository"
+	"github.com/Talan-Application/system-handbook-service/internal/transport/grpc/ctxkeys"
+	translationsvc "github.com/Talan-Application/translation-library/service"
+)
+
+type CommonSubjectService struct {
+	repo           repository.CommonSubjectRepository
+	translationSvc translationsvc.TranslationService
+	logger         *zap.Logger
+}
+
+func NewCommonSubjectService(translationSvc translationsvc.TranslationService, repo repository.CommonSubjectRepository, logger *zap.Logger) *CommonSubjectService {
+	return &CommonSubjectService{repo: repo, translationSvc: translationSvc, logger: logger}
+}
+
+func (s *CommonSubjectService) Create(ctx context.Context, subject *domain.CommonSubject) (*domain.CommonSubject, error) {
+	key, err := s.translationSvc.GenerateKey(ctx)
+	if err != nil {
+		s.logger.Error("failed to generate translation key", zap.Error(err))
+		return nil, err
+	}
+
+	if err := s.translationSvc.CreateTranslations(ctx, key, subject.Translations); err != nil {
+		s.logger.Error("failed to create translations", zap.Error(err))
+		return nil, err
+	}
+
+	subject.NameKey = key
+	created, err := s.repo.Create(ctx, subject)
+	if err != nil {
+		s.logger.Error("failed to create common subject", zap.Error(err))
+		return nil, err
+	}
+	return created, nil
+}
+
+func (s *CommonSubjectService) GetByID(ctx context.Context, id int64) (*domain.CommonSubject, error) {
+	subject, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		s.logger.Error("failed to get common subject", zap.Int64("id", id), zap.Error(err))
+		return nil, err
+	}
+
+	locale := localeFromCtx(ctx)
+	resolved, err := s.translationSvc.ResolveBulk(ctx, []string{subject.NameKey}, locale)
+	if err != nil {
+		s.logger.Error("failed to resolve translation", zap.Error(err))
+		return nil, err
+	}
+	subject.Name = resolved[subject.NameKey]
+
+	return subject, nil
+}
+
+func (s *CommonSubjectService) GetAll(ctx context.Context, limit *int, offset *int) ([]domain.CommonSubject, error) {
+	subjects, err := s.repo.GetAll(ctx, limit, offset)
+	if err != nil {
+		s.logger.Error("failed to get common subjects", zap.Error(err))
+		return nil, err
+	}
+
+	if len(subjects) == 0 {
+		return subjects, nil
+	}
+
+	keys := make([]string, len(subjects))
+	for i, s := range subjects {
+		keys[i] = s.NameKey
+	}
+
+	locale := localeFromCtx(ctx)
+	resolved, err := s.translationSvc.ResolveBulk(ctx, keys, locale)
+	if err != nil {
+		s.logger.Error("failed to resolve translations", zap.Error(err))
+		return nil, err
+	}
+
+	for i := range subjects {
+		subjects[i].Name = resolved[subjects[i].NameKey]
+	}
+
+	return subjects, nil
+}
+
+func (s *CommonSubjectService) Update(ctx context.Context, id int64, subject *domain.CommonSubject) (*domain.CommonSubject, error) {
+	existing, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		s.logger.Error("failed to get common subject for update", zap.Int64("id", id), zap.Error(err))
+		return nil, err
+	}
+
+	if err := s.translationSvc.CreateTranslations(ctx, existing.NameKey, subject.Translations); err != nil {
+		s.logger.Error("failed to update translations", zap.Error(err))
+		return nil, err
+	}
+
+	updated, err := s.repo.Update(ctx, id, existing)
+	if err != nil {
+		s.logger.Error("failed to update common subject", zap.Int64("id", id), zap.Error(err))
+		return nil, err
+	}
+	return updated, nil
+}
+
+func (s *CommonSubjectService) Delete(ctx context.Context, id int64) error {
+	if err := s.repo.Delete(ctx, id); err != nil {
+		s.logger.Error("failed to delete common subject", zap.Int64("id", id), zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+func localeFromCtx(ctx context.Context) string {
+	if v, ok := ctx.Value(ctxkeys.LocaleKey).(string); ok && v != "" {
+		return v
+	}
+	return "ru"
+}
