@@ -50,12 +50,12 @@ func (s *CommonSubjectService) GetByID(ctx context.Context, id int64) (*domain.C
 	}
 
 	locale := localeFromCtx(ctx)
-	resolved, err := s.translationSvc.ResolveBulk(ctx, []string{subject.NameKey}, locale)
+	translation, err := s.translationSvc.GetByLanguageCodeAndKey(ctx, locale, subject.NameKey)
 	if err != nil {
-		s.logger.Error("failed to resolve translation", zap.Error(err))
+		s.logger.Error("failed to get translation", zap.String("key", subject.NameKey), zap.String("locale", locale), zap.Error(err))
 		return nil, err
 	}
-	subject.Name = resolved[subject.NameKey]
+	subject.Name = translation.TranslationValue
 
 	return subject, nil
 }
@@ -97,9 +97,11 @@ func (s *CommonSubjectService) Update(ctx context.Context, id int64, subject *do
 		return nil, err
 	}
 
-	if err := s.translationSvc.CreateTranslations(ctx, existing.NameKey, subject.Translations); err != nil {
-		s.logger.Error("failed to update translations", zap.Error(err))
-		return nil, err
+	for locale, value := range subject.Translations {
+		if err := s.translationSvc.UpdateByKey(ctx, existing.NameKey, locale, value); err != nil {
+			s.logger.Error("failed to update translation", zap.String("key", existing.NameKey), zap.String("locale", locale), zap.Error(err))
+			return nil, err
+		}
 	}
 
 	updated, err := s.repo.Update(ctx, id, existing)
@@ -111,10 +113,22 @@ func (s *CommonSubjectService) Update(ctx context.Context, id int64, subject *do
 }
 
 func (s *CommonSubjectService) Delete(ctx context.Context, id int64) error {
+	existing, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		s.logger.Error("failed to get common subject for delete", zap.Int64("id", id), zap.Error(err))
+		return err
+	}
+
 	if err := s.repo.Delete(ctx, id); err != nil {
 		s.logger.Error("failed to delete common subject", zap.Int64("id", id), zap.Error(err))
 		return err
 	}
+
+	if err := s.translationSvc.DeleteByKey(ctx, existing.NameKey); err != nil {
+		s.logger.Error("failed to delete translations for common subject", zap.String("key", existing.NameKey), zap.Error(err))
+		return err
+	}
+
 	return nil
 }
 

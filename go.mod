@@ -4,7 +4,7 @@ go 1.25.5
 
 require (
 	github.com/Talan-Application/proto-generation v0.0.0-20260523212043-4a296dfbdb45
-	github.com/Talan-Application/translation-library v0.0.0-20260521194124-de275538f211
+	github.com/Talan-Application/translation-library v0.0.0-20260524165540-9b936b0aebe3
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/jackc/pgx/v5 v5.9.2
 	github.com/joho/godotenv v1.5.1

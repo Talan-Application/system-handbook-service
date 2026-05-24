@@ -35,7 +35,7 @@ func (r *CommonSubjectRepository) Create(ctx context.Context, subject *domain.Co
 }
 
 func (r *CommonSubjectRepository) Delete(ctx context.Context, id int64) error {
-	query := `DELETE FROM common_subjects WHERE id = $1`
+	query := `UPDATE common_subjects SET is_deleted = true, deleted_at = NOW() WHERE id = $1 AND is_deleted = false`
 
 	cmdTag, err := r.db.Exec(ctx, query, id)
 	if err != nil {
@@ -64,7 +64,7 @@ func (r *CommonSubjectRepository) Update(ctx context.Context, id int64, subject 
 
 func (r *CommonSubjectRepository) GetAll(ctx context.Context, limit *int, offset *int) ([]domain.CommonSubject, error) {
 	query := `SELECT id, name_key, is_deleted, deleted_at, created_at, updated_at
-				FROM common_subjects ORDER BY id LIMIT $1 OFFSET $2`
+				FROM common_subjects WHERE is_deleted = false ORDER BY id LIMIT $1 OFFSET $2`
 
 	rows, err := r.db.Query(ctx, query, limit, offset)
 	if err != nil {
@@ -100,7 +100,7 @@ func (r *CommonSubjectRepository) GetAll(ctx context.Context, limit *int, offset
 
 func (r *CommonSubjectRepository) GetByID(ctx context.Context, id int64) (*domain.CommonSubject, error) {
 	query := `SELECT id, name_key, is_deleted, deleted_at, created_at, updated_at
-				FROM common_subjects WHERE id = $1`
+				FROM common_subjects WHERE id = $1 AND is_deleted = false`
 
 	s := &domain.CommonSubject{}
 	var deletedAt pgtype.Timestamptz

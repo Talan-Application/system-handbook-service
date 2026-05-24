@@ -1,7 +1,8 @@
 github.com/Talan-Application/proto-generation v0.0.0-20260523212043-4a296dfbdb45 h1:Oi3zcFyf5H4Kb9LehgXkACfohs/ZQKf4rKTTz2G+U0U=
 github.com/Talan-Application/proto-generation v0.0.0-20260523212043-4a296dfbdb45/go.mod h1:blSwQqtrfUcjzC2NFdtU1SFAyEQUTx6kWbOc7i7HsUI=
-github.com/Talan-Application/translation-library v0.0.0-20260521194124-de275538f211 h1:3YQREvRd/tAuRWW15i5JaVjrXhIzM9Suo96D7OKEWMU=
 github.com/Talan-Application/translation-library v0.0.0-20260521194124-de275538f211/go.mod h1:XuQGM1ok37UhLOYPZ8KTcgEfataBJLB5xFPZYcyzXo4=
+github.com/Talan-Application/translation-library v0.0.0-20260524165540-9b936b0aebe3 h1:nfS/rkh9AAcddw720eiw6TjsZKhH2n0WpqeoxQkSbuo=
+github.com/Talan-Application/translation-library v0.0.0-20260524165540-9b936b0aebe3/go.mod h1:XuQGM1ok37UhLOYPZ8KTcgEfataBJLB5xFPZYcyzXo4=
 github.com/bsm/ginkgo/v2 v2.12.0 h1:Ny8MWAHyOepLGlLKYmXG4IEkioBysk6GpaRTLC8zwWs=
 github.com/bsm/ginkgo/v2 v2.12.0/go.mod h1:SwYbGRRDovPVboqFv0tPTcG1sN61LM1Z4ARdbAV9g4c=
 github.com/bsm/gomega v1.27.10 h1:yeMWxP2pV2fG3FgAODIY8EiRE3dy0aeFYt4l7wh6yKA=
