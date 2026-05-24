@@ -23,6 +23,9 @@ CREATE TABLE translation
     UNIQUE (translation_key, language_code, output_channel)
 );
 
+CREATE UNIQUE INDEX translation_key_locale_idx
+    ON translation (translation_key, language_code);
+
 CREATE SEQUENCE IF NOT EXISTS translation_key_seq
     INCREMENT BY 1
     MINVALUE 1

@@ -22,7 +22,7 @@ func NewCommonSubjectRepository(db *pgxpool.Pool) *CommonSubjectRepository {
 }
 
 func (r *CommonSubjectRepository) Create(ctx context.Context, subject *domain.CommonSubject) (*domain.CommonSubject, error) {
-	query := `INSERT INTO subjects (name_key, created_at, updated_at)
+	query := `INSERT INTO common_subjects (name_key, created_at, updated_at)
 				VALUES ($1, NOW(), NOW()) RETURNING id, created_at, updated_at`
 
 	err := r.db.QueryRow(ctx, query, subject.NameKey).
@@ -35,7 +35,7 @@ func (r *CommonSubjectRepository) Create(ctx context.Context, subject *domain.Co
 }
 
 func (r *CommonSubjectRepository) Delete(ctx context.Context, id int64) error {
-	query := `DELETE FROM subjects WHERE id = $1`
+	query := `DELETE FROM common_subjects WHERE id = $1`
 
 	cmdTag, err := r.db.Exec(ctx, query, id)
 	if err != nil {
@@ -49,7 +49,7 @@ func (r *CommonSubjectRepository) Delete(ctx context.Context, id int64) error {
 }
 
 func (r *CommonSubjectRepository) Update(ctx context.Context, id int64, subject *domain.CommonSubject) (*domain.CommonSubject, error) {
-	query := `UPDATE subjects SET name_key = $1, updated_at = NOW() WHERE id = $2 RETURNING updated_at`
+	query := `UPDATE common_subjects SET name_key = $1, updated_at = NOW() WHERE id = $2 RETURNING updated_at`
 
 	err := r.db.QueryRow(ctx, query, subject.NameKey, id).Scan(&subject.UpdatedAt)
 	if err != nil {
@@ -64,7 +64,7 @@ func (r *CommonSubjectRepository) Update(ctx context.Context, id int64, subject 
 
 func (r *CommonSubjectRepository) GetAll(ctx context.Context, limit *int, offset *int) ([]domain.CommonSubject, error) {
 	query := `SELECT id, name_key, is_deleted, deleted_at, created_at, updated_at
-				FROM subjects ORDER BY id LIMIT $1 OFFSET $2`
+				FROM common_subjects ORDER BY id LIMIT $1 OFFSET $2`
 
 	rows, err := r.db.Query(ctx, query, limit, offset)
 	if err != nil {
@@ -100,7 +100,7 @@ func (r *CommonSubjectRepository) GetAll(ctx context.Context, limit *int, offset
 
 func (r *CommonSubjectRepository) GetByID(ctx context.Context, id int64) (*domain.CommonSubject, error) {
 	query := `SELECT id, name_key, is_deleted, deleted_at, created_at, updated_at
-				FROM subjects WHERE id = $1`
+				FROM common_subjects WHERE id = $1`
 
 	s := &domain.CommonSubject{}
 	var deletedAt pgtype.Timestamptz
