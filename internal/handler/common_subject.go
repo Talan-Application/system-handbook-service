@@ -69,7 +69,7 @@ func (h *CommonSubjectHandler) GetAllCommonSubjects(ctx context.Context, req *co
 
 	resp := make([]*commonsubjectv1.CommonSubjectResponse, len(subjects))
 	for i := range subjects {
-		resp[i] = toProto(&subjects[i])
+		resp[i] = toProtoWithTranslations(&subjects[i])
 	}
 
 	return &commonsubjectv1.GetAllCommonSubjectsResponse{CommonSubjects: resp}, nil
@@ -110,5 +110,14 @@ func toProto(s *domain.CommonSubject) *commonsubjectv1.CommonSubjectResponse {
 		Name:      s.Name,
 		CreatedAt: s.CreatedAt.Unix(),
 		UpdatedAt: s.UpdatedAt.Unix(),
+	}
+}
+
+func toProtoWithTranslations(s *domain.CommonSubject) *commonsubjectv1.CommonSubjectResponse {
+	return &commonsubjectv1.CommonSubjectResponse{
+		Id:           s.ID,
+		CreatedAt:    s.CreatedAt.Unix(),
+		UpdatedAt:    s.UpdatedAt.Unix(),
+		Translations: s.Translations,
 	}
 }

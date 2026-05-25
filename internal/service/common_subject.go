@@ -76,15 +76,14 @@ func (s *CommonSubjectService) GetAll(ctx context.Context, limit *int, offset *i
 		keys[i] = s.NameKey
 	}
 
-	locale := localeFromCtx(ctx)
-	resolved, err := s.translationSvc.ResolveBulk(ctx, keys, locale)
+	resolved, err := s.translationSvc.ResolveBulkAllLocales(ctx, keys)
 	if err != nil {
 		s.logger.Error("failed to resolve translations", zap.Error(err))
 		return nil, err
 	}
 
 	for i := range subjects {
-		subjects[i].Name = resolved[subjects[i].NameKey]
+		subjects[i].Translations = resolved[subjects[i].NameKey]
 	}
 
 	return subjects, nil
