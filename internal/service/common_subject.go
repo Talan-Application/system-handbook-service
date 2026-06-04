@@ -5,6 +5,7 @@ import (
 
 	"go.uber.org/zap"
 
+	commonsubjectv1 "github.com/Talan-Application/proto-generation/common_subject/v1"
 	"github.com/Talan-Application/system-handbook-service/internal/domain"
 	"github.com/Talan-Application/system-handbook-service/internal/repository"
 	"github.com/Talan-Application/system-handbook-service/internal/transport/grpc/ctxkeys"
@@ -21,19 +22,22 @@ func NewCommonSubjectService(translationSvc translationsvc.TranslationService, r
 	return &CommonSubjectService{repo: repo, translationSvc: translationSvc, logger: logger}
 }
 
-func (s *CommonSubjectService) Create(ctx context.Context, subject *domain.CommonSubject) (*domain.CommonSubject, error) {
+func (s *CommonSubjectService) Create(ctx context.Context, req *commonsubjectv1.CreateCommonSubjectRequest) (*domain.CommonSubject, error) {
 	key, err := s.translationSvc.GenerateKey(ctx)
 	if err != nil {
 		s.logger.Error("failed to generate translation key", zap.Error(err))
 		return nil, err
 	}
 
-	if err := s.translationSvc.CreateTranslations(ctx, key, subject.Translations); err != nil {
+	if err := s.translationSvc.CreateTranslations(ctx, key, req.GetTranslations()); err != nil {
 		s.logger.Error("failed to create translations", zap.Error(err))
 		return nil, err
 	}
 
-	subject.NameKey = key
+	subject := &domain.CommonSubject{
+		Translations: req.GetTranslations(),
+		NameKey:      key,
+	}
 	created, err := s.repo.Create(ctx, subject)
 	if err != nil {
 		s.logger.Error("failed to create common subject", zap.Error(err))
@@ -60,7 +64,17 @@ func (s *CommonSubjectService) GetByID(ctx context.Context, id int64) (*domain.C
 	return subject, nil
 }
 
-func (s *CommonSubjectService) GetAll(ctx context.Context, limit *int, offset *int) ([]domain.CommonSubject, error) {
+func (s *CommonSubjectService) GetAll(ctx context.Context, req *commonsubjectv1.GetAllCommonSubjectsRequest) ([]domain.CommonSubject, error) {
+	var limit, offset *int
+	if req.Limit != nil {
+		n := int(req.GetLimit())
+		limit = &n
+	}
+	if req.Offset != nil {
+		n := int(req.GetOffset())
+		offset = &n
+	}
+
 	subjects, err := s.repo.GetAll(ctx, limit, offset)
 	if err != nil {
 		s.logger.Error("failed to get common subjects", zap.Error(err))
@@ -124,14 +138,14 @@ func (s *CommonSubjectService) GetLookup(ctx context.Context) ([]domain.CommonSu
 	return subjects, nil
 }
 
-func (s *CommonSubjectService) Update(ctx context.Context, id int64, subject *domain.CommonSubject) (*domain.CommonSubject, error) {
+func (s *CommonSubjectService) Update(ctx context.Context, id int64, req *commonsubjectv1.UpdateCommonSubjectRequest) (*domain.CommonSubject, error) {
 	existing, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		s.logger.Error("failed to get common subject for update", zap.Int64("id", id), zap.Error(err))
 		return nil, err
 	}
 
-	for locale, value := range subject.Translations {
+	for locale, value := range req.GetTranslations() {
 		if err := s.translationSvc.UpdateByKey(ctx, existing.NameKey, locale, value); err != nil {
 			s.logger.Error("failed to update translation", zap.String("key", existing.NameKey), zap.String("locale", locale), zap.Error(err))
 			return nil, err

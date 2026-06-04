@@ -24,11 +24,7 @@ func NewCommonSubjectHandler(svc service.ICommonSubjectService, log *zap.Logger)
 }
 
 func (h *CommonSubjectHandler) CreateCommonSubject(ctx context.Context, req *commonsubjectv1.CreateCommonSubjectRequest) (*commonsubjectv1.CommonSubjectResponse, error) {
-	subject := &domain.CommonSubject{
-		Translations: req.GetTranslations(),
-	}
-
-	created, err := h.svc.Create(ctx, subject)
+	created, err := h.svc.Create(ctx, req)
 	if err != nil {
 		h.log.Error("CreateCommonSubject", zap.Error(err))
 		return nil, status.Error(codes.Internal, "internal error")
@@ -51,17 +47,7 @@ func (h *CommonSubjectHandler) GetCommonSubject(ctx context.Context, req *common
 }
 
 func (h *CommonSubjectHandler) GetAllCommonSubjects(ctx context.Context, req *commonsubjectv1.GetAllCommonSubjectsRequest) (*commonsubjectv1.GetAllCommonSubjectsResponse, error) {
-	var limit, offset *int
-	if req.Limit != nil {
-		n := int(req.GetLimit())
-		limit = &n
-	}
-	if req.Offset != nil {
-		n := int(req.GetOffset())
-		offset = &n
-	}
-
-	subjects, err := h.svc.GetAll(ctx, limit, offset)
+	subjects, err := h.svc.GetAll(ctx, req)
 	if err != nil {
 		h.log.Error("GetAllCommonSubjects", zap.Error(err))
 		return nil, status.Error(codes.Internal, "internal error")
@@ -94,11 +80,7 @@ func (h *CommonSubjectHandler) GetCommonSubjectsLookup(ctx context.Context, req 
 }
 
 func (h *CommonSubjectHandler) UpdateCommonSubject(ctx context.Context, req *commonsubjectv1.UpdateCommonSubjectRequest) (*commonsubjectv1.CommonSubjectResponse, error) {
-	subject := &domain.CommonSubject{
-		Translations: req.GetTranslations(),
-	}
-
-	updated, err := h.svc.Update(ctx, req.GetId(), subject)
+	updated, err := h.svc.Update(ctx, req.GetId(), req)
 	if err != nil {
 		if errors.Is(err, domain.ErrSubjectNotFound) {
 			return nil, status.Error(codes.NotFound, "subject not found")
