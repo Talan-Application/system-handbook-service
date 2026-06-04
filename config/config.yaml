@@ -14,4 +14,4 @@ grpc:
     port: ${GRPC_PORT}
 
 jwt:
-    secretKey: ${JWT_SECRET}
+    secretKey: ${JWT_SECRETKEY}
