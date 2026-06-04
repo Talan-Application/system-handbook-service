@@ -3,7 +3,7 @@ module github.com/Talan-Application/system-handbook-service
 go 1.25.5
 
 require (
-	github.com/Talan-Application/proto-generation v0.0.0-20260525092151-061ced87e5d2
+	github.com/Talan-Application/proto-generation v0.0.0-20260602141350-9d60d60b4264
 	github.com/Talan-Application/translation-library v0.0.0-20260525092529-fcb1628b3122
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/jackc/pgx/v5 v5.9.2

@@ -1,5 +1,7 @@
 github.com/Talan-Application/proto-generation v0.0.0-20260525092151-061ced87e5d2 h1:u967FuHPd/nTrJhxCPYE8c8hngM+S1cY530I9G+ZzAI=
 github.com/Talan-Application/proto-generation v0.0.0-20260525092151-061ced87e5d2/go.mod h1:blSwQqtrfUcjzC2NFdtU1SFAyEQUTx6kWbOc7i7HsUI=
+github.com/Talan-Application/proto-generation v0.0.0-20260602141350-9d60d60b4264 h1:GN29PrM8Wnuy4H/oN2/50A1W1CVmvuIN71pTIveY9Qs=
+github.com/Talan-Application/proto-generation v0.0.0-20260602141350-9d60d60b4264/go.mod h1:blSwQqtrfUcjzC2NFdtU1SFAyEQUTx6kWbOc7i7HsUI=
 github.com/Talan-Application/translation-library v0.0.0-20260525092529-fcb1628b3122 h1:pFK8U9WWZtoepHhfd1LnLk5T1RVQzjpT8szQLdC6sp0=
 github.com/Talan-Application/translation-library v0.0.0-20260525092529-fcb1628b3122/go.mod h1:XuQGM1ok37UhLOYPZ8KTcgEfataBJLB5xFPZYcyzXo4=
 github.com/bsm/ginkgo/v2 v2.12.0 h1:Ny8MWAHyOepLGlLKYmXG4IEkioBysk6GpaRTLC8zwWs=

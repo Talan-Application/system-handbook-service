@@ -75,6 +75,24 @@ func (h *CommonSubjectHandler) GetAllCommonSubjects(ctx context.Context, req *co
 	return &commonsubjectv1.GetAllCommonSubjectsResponse{CommonSubjects: resp}, nil
 }
 
+func (h *CommonSubjectHandler) GetCommonSubjectsLookup(ctx context.Context, req *commonsubjectv1.GetCommonSubjectsLookupRequest) (*commonsubjectv1.GetCommonSubjectsLookupResponse, error) {
+	subjects, err := h.svc.GetLookup(ctx)
+	if err != nil {
+		h.log.Error("GetCommonSubjectsLookup", zap.Error(err))
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	items := make([]*commonsubjectv1.CommonSubjectLookupItem, len(subjects))
+	for i := range subjects {
+		items[i] = &commonsubjectv1.CommonSubjectLookupItem{
+			Id:   subjects[i].ID,
+			Name: subjects[i].Name,
+		}
+	}
+
+	return &commonsubjectv1.GetCommonSubjectsLookupResponse{CommonSubjects: items}, nil
+}
+
 func (h *CommonSubjectHandler) UpdateCommonSubject(ctx context.Context, req *commonsubjectv1.UpdateCommonSubjectRequest) (*commonsubjectv1.CommonSubjectResponse, error) {
 	subject := &domain.CommonSubject{
 		Translations: req.GetTranslations(),

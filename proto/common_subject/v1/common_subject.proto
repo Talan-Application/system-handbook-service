@@ -2,14 +2,15 @@ syntax = "proto3";
 
 package common_subject.v1;
 
-option go_package = "github.com/Talan-Application/proto-generation/common_subject/v1;commonsubjectv1";
+option go_package = "github.com/Talan-Application/proto-generation/gen/common_subject/v1;commonsubjectv1";
 
 service CommonSubjectService {
-  rpc CreateCommonSubject(CreateCommonSubjectRequest)   returns (CommonSubjectResponse);
-  rpc GetCommonSubject(GetCommonSubjectRequest)         returns (CommonSubjectResponse);
-  rpc GetAllCommonSubjects(GetAllCommonSubjectsRequest) returns (GetAllCommonSubjectsResponse);
-  rpc UpdateCommonSubject(UpdateCommonSubjectRequest)   returns (CommonSubjectResponse);
-  rpc DeleteCommonSubject(DeleteCommonSubjectRequest)   returns (DeleteCommonSubjectResponse);
+  rpc CreateCommonSubject(CreateCommonSubjectRequest)         returns (CommonSubjectResponse);
+  rpc GetCommonSubject(GetCommonSubjectRequest)               returns (CommonSubjectResponse);
+  rpc GetAllCommonSubjects(GetAllCommonSubjectsRequest)       returns (GetAllCommonSubjectsResponse);
+  rpc GetCommonSubjectsLookup(GetCommonSubjectsLookupRequest) returns (GetCommonSubjectsLookupResponse);
+  rpc UpdateCommonSubject(UpdateCommonSubjectRequest)         returns (CommonSubjectResponse);
+  rpc DeleteCommonSubject(DeleteCommonSubjectRequest)         returns (DeleteCommonSubjectResponse);
 }
 
 message CreateCommonSubjectRequest {
@@ -44,6 +45,17 @@ message CommonSubjectResponse {
 
 message GetAllCommonSubjectsResponse {
   repeated CommonSubjectResponse common_subjects = 1;
+}
+
+message GetCommonSubjectsLookupRequest {}
+
+message CommonSubjectLookupItem {
+  int64  id   = 1;
+  string name = 2;
+}
+
+message GetCommonSubjectsLookupResponse {
+  repeated CommonSubjectLookupItem common_subjects = 1;
 }
 
 message DeleteCommonSubjectResponse {

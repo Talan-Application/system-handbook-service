@@ -89,6 +89,41 @@ func (s *CommonSubjectService) GetAll(ctx context.Context, limit *int, offset *i
 	return subjects, nil
 }
 
+func (s *CommonSubjectService) GetLookup(ctx context.Context) ([]domain.CommonSubject, error) {
+	subjects, err := s.repo.GetAll(ctx, nil, nil)
+	if err != nil {
+		s.logger.Error("failed to get common subjects for lookup", zap.Error(err))
+		return nil, err
+	}
+
+	if len(subjects) == 0 {
+		return subjects, nil
+	}
+
+	locale := localeFromCtx(ctx)
+	keys := make([]string, len(subjects))
+	for i, subj := range subjects {
+		keys[i] = subj.NameKey
+	}
+
+	resolved, err := s.translationSvc.ResolveBulkAllLocales(ctx, keys)
+	if err != nil {
+		s.logger.Error("failed to resolve translations for lookup", zap.Error(err))
+		return nil, err
+	}
+
+	for i := range subjects {
+		localeMap := resolved[subjects[i].NameKey]
+		if name, ok := localeMap[locale]; ok && name != "" {
+			subjects[i].Name = name
+		} else if name, ok := localeMap["ru"]; ok {
+			subjects[i].Name = name
+		}
+	}
+
+	return subjects, nil
+}
+
 func (s *CommonSubjectService) Update(ctx context.Context, id int64, subject *domain.CommonSubject) (*domain.CommonSubject, error) {
 	existing, err := s.repo.GetByID(ctx, id)
 	if err != nil {
